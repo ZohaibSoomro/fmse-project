@@ -1,0 +1,44 @@
+model todolistmodel
+
+-- Defining constant values for status of a task
+-- Status can be either "pending", "started", or "finished"
+enum Status{pending,started,finished}
+
+-- Defining Task class with three properties:
+-- id: an integer representing the unique identifier for a task
+-- description: a string describing the task
+-- status: constant value from Status enum to represent the current status of the task
+class Task 
+  attributes
+   id: Integer
+   description: String
+   status: Status
+end
+
+-- Defining User class with two properties:
+-- name: a string representing the user's name
+-- tasks: a collection of Tasks representing the tasks assigned to the user
+class User 
+  attributes
+   name: String
+   tasks: Set(Task)
+end
+
+
+-- Defining ToDoList class with one property:
+-- users: a collection of User instances representing the users in the to-do list
+class ToDoList 
+  attributes
+   users: Set(User)
+end
+
+-- Defining some constraints on the to-do list
+-- Each user must have exactly three tasks assigned to them
+-- Each task must have a unique task ID
+-- No two task should have the same id within a user's tasks
+constraints
+
+context ToDoList 
+  inv onlyThreeTasks: self.users->forAll(u | u.tasks->size() = 3) 
+  inv eachTaskWithUniqueId: Task.allInstances()->forAll(t1, t2 | t1 <> t2 implies t1.id <> t2.id) 
+  inv noTwoTaskWithSameIds: User.allInstances()->forAll(u | u.tasks->forAll(t1, t2 | t1 <> t2 implies t1.id <> t2.id))
